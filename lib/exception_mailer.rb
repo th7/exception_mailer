@@ -1,0 +1,2 @@
+module ExceptionMailer
+end
