@@ -2,7 +2,7 @@ require 'exception_mailer/mailer'
 
 module ExceptionMailer
   class << self
-    attr_accessor :server, :port, :to, :from, :subject
+    attr_accessor :host, :server, :port, :account, :password, :to, :from, :subject, :auth_method
 
     def configure
       yield self
@@ -16,7 +16,6 @@ module ExceptionMailer
     end
   end
 
-  # defaults
   self.server  = 'localhost'
   self.port    = 25
   self.from    = 'ExceptionMailer'

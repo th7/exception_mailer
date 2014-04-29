@@ -4,6 +4,7 @@ include ExceptionMailer
 
 describe Mailer do
   let(:mailer) { Mailer.new(
+    host: 'test host',
     server: 'test server',
     port: 'test port',
     to: 'test to',
@@ -15,6 +16,7 @@ describe Mailer do
   describe '#send_notification' do
     let(:exception) { Exception.new 'a test exception' }
     let(:smtp) { double(send_message: nil) }
+    let(:expected_host) { 'test host' }
     let(:expected_server) { 'test server' }
     let(:expected_port) { 'test port' }
     let(:expected_message) { "From: <test from>\nTo: <test to>\nSubject: test subject\nDate: 2014-04-29 12:44:59 -0500\nMessage-Id: <1>\n\nException: a test exception\ntest\nbacktrace\n" }
@@ -28,7 +30,7 @@ describe Mailer do
     end
 
     it 'passes server and port to Net::SMTP.start' do
-      expect(Net::SMTP).to receive(:start).with(expected_server, expected_port)
+      expect(Net::SMTP).to receive(:start).with(expected_server, expected_port, expected_host)
       mailer.send_notification(exception)
     end
 

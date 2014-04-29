@@ -2,25 +2,36 @@ require 'net/smtp'
 
 module ExceptionMailer
   class Mailer
-    attr_reader :server, :port, :to, :from, :subject
+    attr_reader :host, :server, :port, :account, :password, :to, :from, :subject
 
     def initialize(opts)
-      @server  = opts[:server]  || ExceptionMailer.server
-      @port    = opts[:port]    || ExceptionMailer.port
-      @to      = opts[:to]      || ExceptionMailer.to
-      @from    = opts[:from]    || ExceptionMailer.from
-      @subject = opts[:subject] || ExceptionMailer.subject
+      @host        = opts[:host]        || ExceptionMailer.host
+      @server      = opts[:server]      || ExceptionMailer.server
+      @port        = opts[:port]        || ExceptionMailer.port
+      @account     = opts[:account]     || ExceptionMailer.account
+      @password    = opts[:password]    || ExceptionMailer.password
+      @auth_method = opts[:auth_method] || ExceptionMailer.auth_method
+      @to          = opts[:to]          || ExceptionMailer.to
+      @from        = opts[:from]        || ExceptionMailer.from
+      @subject     = opts[:subject]     || ExceptionMailer.subject
 
       @to = [ @to ] unless @to.kind_of? Array
     end
 
     def send_notification(exception)
-      Net::SMTP.start(server, port) do |smtp|
+      Net::SMTP.start(*start_args) do |smtp|
         smtp.send_message(build_msg(exception), from, *to)
       end
     end
 
     private
+
+    def start_args
+      [ :server, :port, :host, :account, :password, :auth_method ].inject([]) do |args, arg|
+        return args if send(arg).nil?
+        args << send(arg)
+      end
+    end
 
     def build_msg(exception)
       <<-END_OF_MESSAGE
